@@ -17,29 +17,54 @@ library("ggridges")
 # Set up #
 ##########
 
-# Import DEM raster
-clipped_raster = raster("raw_data/output.tif")
+# Input DEM raster file path
+input_raster = "raw_data/EU.tif"
+output_file = "output_data/EU.png"
 
-# Plotting parameters
+# Plotting parameters, USA
 plot_spacing = 18  # select every xth y-axis row for plotting (small values = finely spaced lines) 
-plot_exp = 0.6  # exponent factor for elevations (small values = less difference between low and high)
-plot_mult = 1.5  # multiplication factor for elevations (high values = higher line heights)
-plot_smoothing = 8  # How many x-axis points to smooth using rolling averages
+plot_exp = 0.58  # exponent factor for elevations (small values = less difference between low and high)
+plot_mult = 1.65  # multiplication factor for elevations (high values = higher line heights)
+plot_smoothing = 20  # How many x-axis points to smooth using rolling averages
 
-# Output file path
-output_file = "output_data/test.png"
+# # Plotting parameters, Mexico
+# plot_spacing = 4  # select every xth y-axis row for plotting (small values = finely spaced lines) 
+# plot_exp = 0.8  # exponent factor for elevations (small values = less difference between low and high)
+# plot_mult = 0.05  # multiplication factor for elevations (high values = higher line heights)
+# plot_smoothing = 4  # How many x-axis points to smooth using rolling averages
+
+# Plotting parameters, Australia
+plot_spacing = 18  # select every xth y-axis row for plotting (small values = finely spaced lines) 
+plot_exp = 0.83  # exponent factor for elevations (small values = less difference between low and high)
+plot_mult = 0.3  # multiplication factor for elevations (high values = higher line heights)
+plot_smoothing = 13  # How many x-axis points to smooth using rolling averages
+
+# Plotting parameters, Canada
+plot_spacing = 26  # select every xth y-axis row for plotting (small values = finely spaced lines) 
+plot_exp = 0.7  # exponent factor for elevations (small values = less difference between low and high)
+plot_mult = 0.7  # multiplication factor for elevations (high values = higher line heights)
+plot_smoothing = 18  # How many x-axis points to smooth using rolling averages
+
+
+
+# Plotting parameters, Europe
+plot_spacing = 15  # select every xth y-axis row for plotting (small values = finely spaced lines) 
+plot_exp = 0.7  # exponent factor for elevations (small values = less difference between low and high)
+plot_mult = 0.5  # multiplication factor for elevations (high values = higher line heights)
+plot_smoothing = 18  # How many x-axis points to smooth using rolling averages
 
 
 ############
 # Analysis #
 ############
 
-# Set areas of low elevation to NA
-clipped_raster[clipped_raster < 1] = NA
-plot(clipped_raster)
+# Import raster and set areas of low elevation to NA
+dem = raster(input_raster)
+dem[dem < 1] = NA
+# plot(dem)
 
 # Set up sequence of raster rows to extract
-y_vals = seq(1, nrow(clipped_raster), plot_spacing)
+y_vals = seq(12, nrow(dem), plot_spacing)
 all_list = vector("list", length(y_vals))
 
 # For each selected row
@@ -47,10 +72,10 @@ for (i in 1:length(y_vals)) {
 
   # Create dataframe with latitude of selected row, distance along x axis and ridgeline heights
   y_df = data.frame(y = -y_vals[i],
-                    x = 1:ncol(clipped_raster),
+                    x = 1:ncol(dem),
                          
                     # For improved visual impact in low elevation areas, use exponent
-                    height = (clipped_raster[y_vals[i], ]) ^ plot_exp * plot_mult) %>% 
+                    height = (dem[y_vals[i], ]) ^ plot_exp * plot_mult) %>% 
     
               # For smoother lines, apply a rolling mean to height values
               mutate(height = rollapplyr(height, width = plot_smoothing, FUN = mean, partial=TRUE))
@@ -71,7 +96,8 @@ all_df = bind_rows(all_list)
 # Plot resulting data using ridgeline plots
 output_plot = ggplot(data = all_df) + 
   geom_ridgeline(aes(x = x, y = y, height = height, group = y), fill = "white", size = 0.45) +
-  coord_cartesian() +  
+  # coord_cartesian() + 
+  coord_fixed() +
   theme(line = element_blank(),
         text = element_blank(),
         title = element_blank(),
@@ -79,4 +105,5 @@ output_plot = ggplot(data = all_df) +
         panel.background = element_blank())
 
 # Export to file
-ggsave(output_file, output_plot, dpi = 600, width = 40, height = 25, type = "cairo-png")
+ggsave(output_file, output_plot, dpi = 508*1.5, width = 100/1.5, height = 70.478/1.5, units = "cm", type = "cairo-png")
+# ggsave(output_file, output_plot, dpi = 508*1.5, heigh = 100/1.5, width = 70.478/1.5, units = "cm", type = "cairo-png")
