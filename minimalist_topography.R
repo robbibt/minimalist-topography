@@ -21,9 +21,10 @@ library("ggridges")
 clipped_raster = raster("raw_data/output.tif")
 
 # Plotting parameters
-plot_spacing = 18
-plot_exp = 0.6
-plot_mult = 1.5
+plot_spacing = 18  # select every xth y-axis row for plotting (small values = finely spaced lines) 
+plot_exp = 0.6  # exponent factor for elevations (small values = less difference between low and high)
+plot_mult = 1.5  # multiplication factor for elevations (high values = higher line heights)
+plot_smoothing = 8  # How many x-axis points to smooth using rolling averages
 
 # Output file path
 output_file = "output_data/test.png"
@@ -52,7 +53,7 @@ for (i in 1:length(y_vals)) {
                     height = (clipped_raster[y_vals[i], ]) ^ plot_exp * plot_mult) %>% 
     
               # For smoother lines, apply a rolling mean to height values
-              mutate(height = rollapplyr(height, width = 8, FUN = mean, partial=TRUE))
+              mutate(height = rollapplyr(height, width = plot_smoothing, FUN = mean, partial=TRUE))
   
   # Append results to list
   all_list[[i]] = y_df
