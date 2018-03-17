@@ -18,7 +18,7 @@ library("ggridges")
 ##########
 
 # Import DEM raster
-clipped_raster = raster("C:/Geography/GIS_data/output.tif")
+clipped_raster = raster("raw_data/output.tif")
 
 # Plotting parameters
 plot_spacing = 18
@@ -26,7 +26,7 @@ plot_exp = 0.6
 plot_mult = 1.5
 
 # Output file path
-output_file = "C:/Geography/GIS_data/test.png"
+output_file = "output_data/test.png"
 
 
 ############
